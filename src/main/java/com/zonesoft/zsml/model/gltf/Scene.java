@@ -7,4 +7,12 @@ public class Scene {
 	public Scene() {
 
 	}
+
+	public String getName() {
+		return name;
+	}
+
+	public int[] getNodes() {
+		return nodes;
+	}
 }

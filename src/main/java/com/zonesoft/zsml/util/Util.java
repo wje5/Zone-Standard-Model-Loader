@@ -8,7 +8,7 @@ public class Util {
 	}
 
 	public static String getSuffix(String path) {
-		String[] a = path.split("\\\\");
+		String[] a = path.split("/");
 		path = a[a.length - 1];
 		int index = path.lastIndexOf(".");
 		if (index != -1 && index < path.length() - 1) {

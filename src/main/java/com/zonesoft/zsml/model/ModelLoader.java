@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.zonesoft.zsml.model.gltf.GLTFReader;
+import com.zonesoft.zsml.render.ModelRenderer;
 
 import net.minecraft.util.ResourceLocation;
 
@@ -13,6 +14,8 @@ public class ModelLoader {
 	private static Set<IModelReader> readers = new HashSet<IModelReader>();
 
 	private static Map<ResourceLocation, AbstractModel> models = new HashMap<ResourceLocation, AbstractModel>();
+
+	private static Map<AbstractModel, ModelRenderer> renderers = new HashMap<AbstractModel, ModelRenderer>();
 
 	public static void init() {
 		registerReader(new GLTFReader());
@@ -35,5 +38,22 @@ public class ModelLoader {
 			}
 		}
 		return null;
+	}
+
+	public static ModelRenderer getRenderer(AbstractModel model) {
+		ModelRenderer renderer = renderers.get(model);
+		if (renderer == null) {
+			renderer = model.createNewRenderer();
+			renderers.put(model, renderer);
+		}
+		return renderer;
+	}
+
+	public static void doRender(AbstractModel model) {
+		getRenderer(model).doRender();
+	}
+
+	public static void doRender(ResourceLocation location) {
+		doRender(getModel(location));
 	}
 }

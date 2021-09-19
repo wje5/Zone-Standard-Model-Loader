@@ -22,6 +22,7 @@ public class GLTFReader implements IModelReader {
 		try (InputStream stream = Minecraft.getInstance().getResourceManager().getResource(location).getInputStream()) {
 			Gson gson = new Gson();
 			ModelGLTF model = gson.fromJson(new InputStreamReader(stream), ModelGLTF.class);
+			model.setPath(location);
 			return model;
 		} catch (IOException e) {
 			e.printStackTrace();
