@@ -18,7 +18,7 @@ public class Accessor {
 
 	private int bufferView = -1;
 	private int byteOffset = 0;
-	private int compoundType;
+	private int componentType;
 	private String type;
 	private int count;
 	private float[] max;
@@ -37,8 +37,8 @@ public class Accessor {
 		return byteOffset;
 	}
 
-	public int getCompoundType() {
-		return compoundType;
+	public int getComponentType() {
+		return componentType;
 	}
 
 	public String getType() {

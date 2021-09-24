@@ -1,5 +1,6 @@
 package com.zonesoft.zsml.render;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.zonesoft.zsml.model.AbstractModel;
 
 public class ModelRenderer {
@@ -9,7 +10,7 @@ public class ModelRenderer {
 		this.model = model;
 	}
 
-	public void doRender() {
+	public void doRender(MatrixStack stack) {
 
 	}
 }

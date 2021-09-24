@@ -20,4 +20,12 @@ public class Primitive {
 	public int getIndices() {
 		return indices;
 	}
+
+	public int getMaterial() {
+		return material;
+	}
+
+	public int getMode() {
+		return mode;
+	}
 }

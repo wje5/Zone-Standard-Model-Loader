@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.zonesoft.zsml.model.gltf.GLTFReader;
 import com.zonesoft.zsml.render.ModelRenderer;
 
@@ -49,11 +50,11 @@ public class ModelLoader {
 		return renderer;
 	}
 
-	public static void doRender(AbstractModel model) {
-		getRenderer(model).doRender();
+	public static void doRender(MatrixStack stack, AbstractModel model) {
+		getRenderer(model).doRender(stack);
 	}
 
-	public static void doRender(ResourceLocation location) {
-		doRender(getModel(location));
+	public static void doRender(MatrixStack stack, ResourceLocation location) {
+		doRender(stack, getModel(location));
 	}
 }

@@ -26,15 +26,17 @@ public class AccessorHelper {
 	}
 
 	public static float byteToFloat(byte b1, byte b2, byte b3, byte b4) {
-		int i = (0 | (b1 << 24) | (b2 << 16) | (b3 << 8) | b4);
 		ByteBuffer buffer = ByteBuffer.allocateDirect(4);
-		buffer.put(b1);
-		buffer.put(b2);
-		buffer.put(b3);
 		buffer.put(b4);
+		buffer.put(b3);
+		buffer.put(b2);
+		buffer.put(b1);
 		buffer.flip();
 		return buffer.getFloat();
-//		return Float.intBitsToFloat(i);
+	}
+
+	public static BufferData viewBytes(ModelGLTF model, Accessor accessor) {
+		return viewBytes(model, model.getBufferViews().get(accessor.getBufferView()));
 	}
 
 	public static BufferData viewBytes(ModelGLTF model, BufferView bufferView) {
@@ -59,12 +61,21 @@ public class AccessorHelper {
 		a[a.length - 1] = buffer.getUri();
 		String path = String.join("/", a);
 		ResourceLocation location = new ResourceLocation(model.getPath().getNamespace(), path);
-		try (InputStream stream = Minecraft.getInstance().getResourceManager().getResource(location).getInputStream()) {
-			byte[] data = stream.readNBytes(buffer.getByteLength());
+		InputStream stream = null;
+		try {
+			stream = Minecraft.getInstance().getResourceManager().getResource(location).getInputStream();
+			byte[] data = new byte[buffer.getByteLength()];
+			stream.read(data);
 			bufferData = new BufferData(data);
 			cachedData.put(buffer, bufferData);
 		} catch (IOException e) {
 			e.printStackTrace();
+		} finally {
+			try {
+				stream.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		return bufferData;
 	}

@@ -1,6 +1,9 @@
 package com.zonesoft.zsml.demo;
 
+import org.lwjgl.opengl.GL11;
+
 import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.zonesoft.zsml.model.ModelLoader;
 
 import net.minecraft.client.renderer.IRenderTypeBuffer;
@@ -19,7 +22,10 @@ public class DemoRenderer extends EntityRenderer<EntityDemo> {
 	public void render(EntityDemo entity, float yaw, float partialTicks, MatrixStack stack, IRenderTypeBuffer buffer,
 			int light) {
 		super.render(entity, yaw, partialTicks, stack, buffer, light);
-		ModelLoader.doRender(LOCATION);
+		GL11.glPushMatrix();
+		GlStateManager.multMatrix(stack.getLast().getMatrix());
+		ModelLoader.doRender(stack, LOCATION);
+		GL11.glPopMatrix();
 	}
 
 	@Override
