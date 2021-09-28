@@ -1,4 +1,4 @@
-package com.zonesoft.zsml.model.gltf;
+package com.zonesoft.zsml.model.gltf.render;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -6,6 +6,11 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.zonesoft.zsml.model.gltf.Accessor;
+import com.zonesoft.zsml.model.gltf.Buffer;
+import com.zonesoft.zsml.model.gltf.BufferView;
+import com.zonesoft.zsml.model.gltf.ModelGLTF;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
