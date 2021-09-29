@@ -12,17 +12,15 @@ import com.zonesoft.zsml.model.gltf.ModelGLTF;
 import com.zonesoft.zsml.model.gltf.Primitive;
 
 public class BufferedPrimitive {
-	private int vboId, vbonId, vboiId, vaoId, verticesCount;
+	private int vboId, vbonId, eboId, vaoId, verticesCount;
 	private ByteBuffer indicesBuffer;
 
 	public BufferedPrimitive(ModelGLTF model, Primitive primitive) {
 		Map<String, Integer> attributes = primitive.getAttributes();
 		Integer posAccessorIndex = attributes.get("POSITION");
 		if (posAccessorIndex != null) {
-			if (vaoId == 0) {
-				vaoId = GL46.glGenVertexArrays();
-			}
-//			GL46.glBindVertexArray(vaoId);
+			vaoId = GL46.glGenVertexArrays();
+			GL46.glBindVertexArray(vaoId);
 
 			Accessor posAccessor = model.getAccessors().get(posAccessorIndex);
 			byte[] bytes = AccessorHelper.viewBytes(model, posAccessor).getData();
@@ -50,46 +48,48 @@ public class BufferedPrimitive {
 				buffer = ByteBuffer.allocateDirect(bytes.length).put(bytes);
 			}
 			buffer.clear();
-			if (vboId == 0) {
-				vboId = GL46.glGenBuffers();
-			}
-			GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
+			vboId = GL46.glGenBuffers();
 			GL46.glBindBuffer(GL46.GL_ARRAY_BUFFER, vboId);
 			GL46.glBufferData(GL46.GL_ARRAY_BUFFER, buffer, GL46.GL_STATIC_DRAW);
-			GL11.glVertexPointer(3, GL11.GL_FLOAT, 0, 0);
-//			GL46.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 0, 0);
-//			GL46.glEnableVertexAttribArray(0);
-//			GL46.glVertexAttribPointer(1, 3, GL11.GL_FLOAT, false, 0, 0);
-//			GL46.glEnableVertexAttribArray(1);
-			GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
-			GL11.glDisableClientState(GL11.GL_VERTEX_ARRAY);
 
 			int indicesAccessorIndex = primitive.getIndices();
-			if (vboiId == 0) {
-				vboiId = GL46.glGenBuffers();
+			if (eboId == 0) {
+				eboId = GL46.glGenBuffers();
 			}
 			Accessor indicesAccessor = model.getAccessors().get(indicesAccessorIndex);
 			bytes = AccessorHelper.viewBytes(model, indicesAccessor).getData();
 			indicesBuffer = ByteBuffer.allocateDirect(bytes.length).put(bytes);
+			indicesBuffer.clear();
+			GL46.glBindBuffer(GL46.GL_ELEMENT_ARRAY_BUFFER, eboId);
+			GL46.glBufferData(GL46.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL46.GL_STATIC_DRAW);
 
-//			GL46.glBindVertexArray(0);
+			GL46.glBindVertexArray(0);
+			GL46.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 0, 0);
+			if (normalBytes != null) {
+				GL46.glVertexAttribPointer(1, 3, GL11.GL_FLOAT, false, 0, 0);
+			}
+			GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+
+//			GL46.glBindBuffer(GL46.GL_ELEMENT_ARRAY_BUFFER, eboId);
+//			GL46.glBufferData(GL46.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL46.GL_STATIC_DRAW);
+
+			GL46.glBindBuffer(GL46.GL_ELEMENT_ARRAY_BUFFER, 0);
+
 		}
 	}
 
 	public void doRender() {
 		GL11.glColor4f(1, 1, 1, 1);
 		GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
+		GL46.glBindVertexArray(vaoId);
+		GL46.glEnableVertexAttribArray(0);
+//		GL46.glEnableVertexAttribArray(1);
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboId);
-//		GL11.glVertexPointer(3, GL11.GL_FLOAT, 0, 0);
-//		GL46.glVertexAttribLPointer(0, 3, GL11.GL_FLOAT, 0, 0);
-//		GL46.glBindVertexArray(vaoId);
-		indicesBuffer.clear();
-		GL11.glVertexPointer(3, GL11.GL_FLOAT, 0, 0);
-		GL11.glDrawElements(GL11.GL_TRIANGLES, GL11.GL_UNSIGNED_SHORT, indicesBuffer);
-//		GL11.glDrawElements(GL11.GL_TRIANGLES, verticesCount, GL11.GL_UNSIGNED_SHORT, 0);
-//		GL46.glDrawArrays(GL11.GL_TRIANGLES, 0, verticesCount);
+		GL46.glBindBuffer(GL46.GL_ELEMENT_ARRAY_BUFFER, eboId);
+		GL11.nglDrawElements(GL11.GL_TRIANGLES, verticesCount, GL11.GL_UNSIGNED_SHORT, 0);
+		GL46.glBindBuffer(GL46.GL_ELEMENT_ARRAY_BUFFER, 0);
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
-//		GL46.glBindVertexArray(0);
+		GL46.glBindVertexArray(0);
 		GL11.glDisableClientState(GL11.GL_VERTEX_ARRAY);
 	}
 }
