@@ -16,6 +16,7 @@ public class ModelGLTF extends AbstractModel {
 	private List<Buffer> buffers = new ArrayList<Buffer>();
 	private List<BufferView> bufferViews = new ArrayList<BufferView>();
 	private List<Accessor> accessors = new ArrayList<Accessor>();
+	private List<Material> materials = new ArrayList<Material>();
 	private ResourceLocation path;
 
 	public ModelGLTF() {
@@ -57,5 +58,9 @@ public class ModelGLTF extends AbstractModel {
 
 	public List<Accessor> getAccessors() {
 		return accessors;
+	}
+
+	public List<Material> getMaterials() {
+		return materials;
 	}
 }
