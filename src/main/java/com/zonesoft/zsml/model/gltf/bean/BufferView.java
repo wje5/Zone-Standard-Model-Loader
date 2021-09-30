@@ -1,4 +1,4 @@
-package com.zonesoft.zsml.model.gltf;
+package com.zonesoft.zsml.model.gltf.bean;
 
 public class BufferView {
 	private int buffer = -1;

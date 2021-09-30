@@ -5,9 +5,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import com.google.gson.Gson;
-import com.zonesoft.zsml.model.AbstractModel;
-import com.zonesoft.zsml.model.IModelReader;
-import com.zonesoft.zsml.util.Util;
+import com.zonesoft.zsml.AbstractModel;
+import com.zonesoft.zsml.IModelReader;
+import com.zonesoft.zsml.Util;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
@@ -16,7 +16,7 @@ public class GLTFReader implements IModelReader {
 	@Override
 	public AbstractModel read(ResourceLocation location) {
 		String suffix = Util.getSuffix(location);
-		if (!Util.getSuffix(location).equals("gltf")) {
+		if (!suffix.equals("gltf")) {
 			return null;
 		}
 		try (InputStream stream = Minecraft.getInstance().getResourceManager().getResource(location).getInputStream()) {

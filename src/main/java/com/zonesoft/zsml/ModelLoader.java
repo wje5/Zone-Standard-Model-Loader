@@ -1,4 +1,4 @@
-package com.zonesoft.zsml.model;
+package com.zonesoft.zsml;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -7,7 +7,6 @@ import java.util.Set;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.zonesoft.zsml.model.gltf.GLTFReader;
-import com.zonesoft.zsml.render.ModelRenderer;
 
 import net.minecraft.util.ResourceLocation;
 

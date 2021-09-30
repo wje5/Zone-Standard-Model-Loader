@@ -5,7 +5,6 @@ import org.apache.logging.log4j.Logger;
 
 import com.zonesoft.zsml.demo.DemoRenderer;
 import com.zonesoft.zsml.demo.EntityLoader;
-import com.zonesoft.zsml.model.ModelLoader;
 
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraftforge.common.MinecraftForge;

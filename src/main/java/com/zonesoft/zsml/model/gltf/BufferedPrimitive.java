@@ -1,4 +1,4 @@
-package com.zonesoft.zsml.model.gltf.render;
+package com.zonesoft.zsml.model.gltf;
 
 import java.nio.ByteBuffer;
 import java.util.Map;
@@ -7,13 +7,21 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL46;
 
-import com.zonesoft.zsml.model.gltf.Accessor;
-import com.zonesoft.zsml.model.gltf.ModelGLTF;
-import com.zonesoft.zsml.model.gltf.Primitive;
+import com.zonesoft.zsml.model.gltf.bean.Accessor;
+import com.zonesoft.zsml.model.gltf.bean.Image;
+import com.zonesoft.zsml.model.gltf.bean.Material;
+import com.zonesoft.zsml.model.gltf.bean.Material.PBRMetallicRoughness;
+import com.zonesoft.zsml.model.gltf.bean.Primitive;
+import com.zonesoft.zsml.model.gltf.bean.Texture;
+import com.zonesoft.zsml.model.gltf.bean.TextureInfo;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.util.ResourceLocation;
 
 public class BufferedPrimitive {
-	private int vboId, vbonId, eboId, vaoId, verticesCount;
+	private int vboId, eboId, vaoId, verticesCount;
 	private ByteBuffer indicesBuffer;
+	private ResourceLocation baseColorLocation;
 
 	public BufferedPrimitive(ModelGLTF model, Primitive primitive) {
 		Map<String, Integer> attributes = primitive.getAttributes();
@@ -70,11 +78,24 @@ public class BufferedPrimitive {
 			GL46.glBindVertexArray(0);
 			GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
 
-//			GL46.glBindBuffer(GL46.GL_ELEMENT_ARRAY_BUFFER, eboId);
-//			GL46.glBufferData(GL46.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL46.GL_STATIC_DRAW);
-
 			GL46.glBindBuffer(GL46.GL_ELEMENT_ARRAY_BUFFER, 0);
 
+			// MATERIAL START
+
+			int materialIndex = primitive.getMaterial();
+			Material material = materialIndex >= 0 ? model.getMaterials().get(materialIndex) : new Material();
+			PBRMetallicRoughness pbr = material.getPbrMetallicRoughness();
+			if (pbr != null) {
+				TextureInfo baseColorTextureInfo = pbr.getBaseColorTexture();
+				if (baseColorTextureInfo != null) {
+					Texture baseColorTexture = model.getTextures().get(baseColorTextureInfo.getIndex());
+					int baseColorSource = baseColorTexture.getSource();
+					if (baseColorSource >= 0) {
+						Image baseColorImage = model.getImages().get(baseColorTexture.getSource());
+						baseColorLocation = AccessorHelper.getModelDirFile(model, baseColorImage.getUri());
+					}
+				}
+			}
 		}
 	}
 
@@ -86,7 +107,7 @@ public class BufferedPrimitive {
 		GL46.glEnableVertexAttribArray(1);
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboId);
 		GL46.glBindBuffer(GL46.GL_ELEMENT_ARRAY_BUFFER, eboId);
-
+		Minecraft.getInstance().textureManager.bindTexture(baseColorLocation);
 		GL11.nglDrawElements(GL11.GL_TRIANGLES, verticesCount, GL11.GL_UNSIGNED_INT, 0);
 
 		GL46.glDisableVertexAttribArray(0);

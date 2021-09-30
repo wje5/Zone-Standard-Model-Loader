@@ -1,4 +1,4 @@
-package com.zonesoft.zsml.model.gltf;
+package com.zonesoft.zsml.model.gltf.bean;
 
 import java.util.Map;
 

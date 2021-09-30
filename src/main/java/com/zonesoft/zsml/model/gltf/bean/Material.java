@@ -1,8 +1,15 @@
-package com.zonesoft.zsml.model.gltf;
+package com.zonesoft.zsml.model.gltf.bean;
 
 public class Material {
 	private String name;
 	private PBRMetallicRoughness pbrMetallicRoughness;
+	private NormalTextureInfo normalTexture;
+	private OcclusionTextureInfo occlusionTexture;
+	private TextureInfo emissiveTexture;
+	private float[] emissiveFactor = new float[] { 0, 0, 0 };
+	private String alphaMode = "OPAQUE";
+	private float alphaCutoff = 0.5F;
+	private boolean doubleSided;
 
 	public Material() {
 
@@ -12,19 +19,44 @@ public class Material {
 		return name;
 	}
 
+	public PBRMetallicRoughness getPbrMetallicRoughness() {
+		return pbrMetallicRoughness;
+	}
+
+	public NormalTextureInfo getNormalTexture() {
+		return normalTexture;
+	}
+
+	public OcclusionTextureInfo getOcclusionTexture() {
+		return occlusionTexture;
+	}
+
+	public TextureInfo getEmissiveTexture() {
+		return emissiveTexture;
+	}
+
+	public float[] getEmissiveFactor() {
+		return emissiveFactor;
+	}
+
+	public String getAlphaMode() {
+		return alphaMode;
+	}
+
+	public float getAlphaCutoff() {
+		return alphaCutoff;
+	}
+
+	public boolean isDoubleSided() {
+		return doubleSided;
+	}
+
 	public static class PBRMetallicRoughness {
 		private float[] baseColorFactor = new float[] { 1, 1, 1, 1 };
 		private TextureInfo baseColorTexture;
 		private float metallicFactor = 1;
 		private float roughnessFactor = 1;
 		private TextureInfo metallicRoughnessTexture;
-		private NormalTextureInfo normalTexture;
-		private OcclusionTextureInfo occlusionTexture;
-		private TextureInfo emissiveTexture;
-		private float[] emissiveFactor = new float[] { 0, 0, 0 };
-		private String alphaMode = "OPAQUE";
-		private float alphaCutoff = 0.5F;
-		private boolean doubleSided;
 
 		public PBRMetallicRoughness() {
 
@@ -48,34 +80,6 @@ public class Material {
 
 		public TextureInfo getMetallicRoughnessTexture() {
 			return metallicRoughnessTexture;
-		}
-
-		public NormalTextureInfo getNormalTexture() {
-			return normalTexture;
-		}
-
-		public OcclusionTextureInfo getOcclusionTexture() {
-			return occlusionTexture;
-		}
-
-		public TextureInfo getEmissiveTexture() {
-			return emissiveTexture;
-		}
-
-		public float[] getEmissiveFactor() {
-			return emissiveFactor;
-		}
-
-		public String getAlphaMode() {
-			return alphaMode;
-		}
-
-		public float getAlphaCutoff() {
-			return alphaCutoff;
-		}
-
-		public boolean isDoubleSided() {
-			return doubleSided;
 		}
 	}
 

@@ -1,4 +1,4 @@
-package com.zonesoft.zsml.model;
+package com.zonesoft.zsml;
 
 import net.minecraft.util.ResourceLocation;
 

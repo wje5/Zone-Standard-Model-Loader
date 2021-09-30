@@ -1,6 +1,4 @@
-package com.zonesoft.zsml.model;
-
-import com.zonesoft.zsml.render.ModelRenderer;
+package com.zonesoft.zsml;
 
 public abstract class AbstractModel {
 	public abstract ModelRenderer createNewRenderer();

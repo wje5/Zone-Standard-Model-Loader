@@ -1,4 +1,4 @@
-package com.zonesoft.zsml.model.gltf;
+package com.zonesoft.zsml.model.gltf.bean;
 
 public class Accessor {
 	public static final int BYTE = 5120;

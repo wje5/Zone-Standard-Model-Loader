@@ -1,4 +1,4 @@
-package com.zonesoft.zsml.render;
+package com.zonesoft.zsml.model.gltf;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -6,12 +6,11 @@ import java.util.Map;
 import org.lwjgl.opengl.GL11;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.zonesoft.zsml.model.gltf.Mesh;
-import com.zonesoft.zsml.model.gltf.ModelGLTF;
-import com.zonesoft.zsml.model.gltf.Node;
-import com.zonesoft.zsml.model.gltf.Primitive;
-import com.zonesoft.zsml.model.gltf.Scene;
-import com.zonesoft.zsml.model.gltf.render.BufferedPrimitive;
+import com.zonesoft.zsml.ModelRenderer;
+import com.zonesoft.zsml.model.gltf.bean.Mesh;
+import com.zonesoft.zsml.model.gltf.bean.Node;
+import com.zonesoft.zsml.model.gltf.bean.Primitive;
+import com.zonesoft.zsml.model.gltf.bean.Scene;
 
 public class GLTFRenderer extends ModelRenderer {
 	private Map<Primitive, BufferedPrimitive> bufferedPrimitives = new HashMap<Primitive, BufferedPrimitive>();

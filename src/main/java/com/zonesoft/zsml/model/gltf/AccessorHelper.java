@@ -1,4 +1,4 @@
-package com.zonesoft.zsml.model.gltf.render;
+package com.zonesoft.zsml.model.gltf;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,10 +7,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.zonesoft.zsml.model.gltf.Accessor;
-import com.zonesoft.zsml.model.gltf.Buffer;
-import com.zonesoft.zsml.model.gltf.BufferView;
-import com.zonesoft.zsml.model.gltf.ModelGLTF;
+import com.zonesoft.zsml.model.gltf.bean.Accessor;
+import com.zonesoft.zsml.model.gltf.bean.Buffer;
+import com.zonesoft.zsml.model.gltf.bean.BufferView;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
@@ -62,10 +61,7 @@ public class AccessorHelper {
 		if (bufferData != null) {
 			return bufferData;
 		}
-		String[] a = model.getPath().getPath().split("/");
-		a[a.length - 1] = buffer.getUri();
-		String path = String.join("/", a);
-		ResourceLocation location = new ResourceLocation(model.getPath().getNamespace(), path);
+		ResourceLocation location = getModelDirFile(model, buffer.getUri());
 		InputStream stream = null;
 		try {
 			stream = Minecraft.getInstance().getResourceManager().getResource(location).getInputStream();
@@ -83,6 +79,12 @@ public class AccessorHelper {
 			}
 		}
 		return bufferData;
+	}
+
+	public static ResourceLocation getModelDirFile(ModelGLTF model, String filePath) {
+		String[] a = model.getPath().getPath().split("/");
+		a[a.length - 1] = filePath;
+		return new ResourceLocation(model.getPath().getNamespace(), String.join("/", a));
 	}
 
 	public static class BufferData {
