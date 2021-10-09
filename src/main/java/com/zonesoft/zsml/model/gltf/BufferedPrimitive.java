@@ -22,8 +22,16 @@ import net.minecraft.util.ResourceLocation;
 public class BufferedPrimitive {
 	private int vboId, eboId, vaoId, indicesCount;
 	private ResourceLocation baseColorLocation;
+	private ModelGLTF model;
+	private Primitive primitive;
 
 	public BufferedPrimitive(ModelGLTF model, Primitive primitive) {
+		this.model = model;
+		this.primitive = primitive;
+		initData();
+	}
+
+	public void initData() {
 		Map<String, Integer> attributes = primitive.getAttributes();
 		Integer posAccessorIndex = attributes.get("POSITION");
 		if (posAccessorIndex != null) {
@@ -118,7 +126,7 @@ public class BufferedPrimitive {
 	}
 
 	public void doRender() {
-		RenderSystem.defaultBlendFunc();
+//		RenderSystem.defaultBlendFunc();
 		RenderSystem.enableDepthTest();
 		GL11.glColor4f(1, 1, 1, 1);
 		GL46.glBindVertexArray(vaoId);
@@ -132,7 +140,7 @@ public class BufferedPrimitive {
 		} else {
 			GL11.glDisableClientState(GL46.GL_TEXTURE_COORD_ARRAY);
 		}
-		GL11.nglDrawElements(GL11.GL_TRIANGLES, indicesCount, GL11.GL_UNSIGNED_INT, 0);
+		GL11.glDrawElements(GL11.GL_TRIANGLES, indicesCount, GL11.GL_UNSIGNED_INT, 0);
 
 		GL46.glBindVertexArray(0);
 		GL46.glDisableClientState(GL46.GL_INDEX_ARRAY);
