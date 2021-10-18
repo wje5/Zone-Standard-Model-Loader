@@ -17,7 +17,7 @@ public class ITESRTrumpet extends ItemStackTileEntityRenderer {
 			int combinedLight, int combinedOverlay) {
 		GL11.glPushMatrix();
 		GlStateManager.multMatrix(matrixStack.getLast().getMatrix());
-		ModelLoader.doRender(matrixStack, DemoRenderer.LOCATION);
+		ModelLoader.doRender(matrixStack, buffer, DemoRenderer.LOCATION);
 		GL11.glPopMatrix();
 	}
 }

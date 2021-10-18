@@ -2,6 +2,7 @@ package com.zonesoft.zsml.model.gltf;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,15 +29,33 @@ public class AccessorHelper {
 //		return new Vector3f(x, y, z);
 //	}
 
-//	public static float byteToFloat(byte b1, byte b2, byte b3, byte b4) {
-//		ByteBuffer buffer = ByteBuffer.allocateDirect(4);
-//		buffer.put(b4);
-//		buffer.put(b3);
-//		buffer.put(b2);
-//		buffer.put(b1);
-//		buffer.flip();
-//		return buffer.getFloat();
-//	}
+	public static float byteToFloat(byte b1, byte b2, byte b3, byte b4) {
+		ByteBuffer buffer = ByteBuffer.allocateDirect(4);
+		buffer.put(b4);
+		buffer.put(b3);
+		buffer.put(b2);
+		buffer.put(b1);
+		buffer.flip();
+		return buffer.getFloat();
+	}
+
+	public static int byteToInt(byte b1, byte b2, byte b3, byte b4) {
+		ByteBuffer buffer = ByteBuffer.allocateDirect(4);
+		buffer.put(b4);
+		buffer.put(b3);
+		buffer.put(b2);
+		buffer.put(b1);
+		buffer.flip();
+		return buffer.getInt();
+	}
+
+	public static short byteToShort(byte b1, byte b2) {
+		ByteBuffer buffer = ByteBuffer.allocateDirect(2);
+		buffer.put(b2);
+		buffer.put(b1);
+		buffer.flip();
+		return buffer.getShort();
+	}
 
 	public static BufferData viewBytes(ModelGLTF model, Accessor accessor) {
 		return viewBytes(model, model.getBufferViews().get(accessor.getBufferView()), accessor.getByteOffset(),

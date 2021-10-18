@@ -8,6 +8,7 @@ import java.util.Set;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.zonesoft.zsml.model.gltf.GLTFReader;
 
+import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.util.ResourceLocation;
 
 public class ModelLoader {
@@ -49,11 +50,11 @@ public class ModelLoader {
 		return renderer;
 	}
 
-	public static void doRender(MatrixStack stack, AbstractModel model) {
-		getRenderer(model).doRender(stack);
+	public static void doRender(MatrixStack stack, IRenderTypeBuffer buffer, AbstractModel model) {
+		getRenderer(model).doRender(stack, buffer);
 	}
 
-	public static void doRender(MatrixStack stack, ResourceLocation location) {
-		doRender(stack, getModel(location));
+	public static void doRender(MatrixStack stack, IRenderTypeBuffer buffer, ResourceLocation location) {
+		doRender(stack, buffer, getModel(location));
 	}
 }
