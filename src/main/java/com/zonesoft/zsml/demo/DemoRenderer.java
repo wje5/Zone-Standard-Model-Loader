@@ -10,16 +10,13 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-import com.zonesoft.zsml.GLManager;
 import com.zonesoft.zsml.ModelLoader;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Matrix3f;
@@ -43,68 +40,10 @@ public class DemoRenderer extends EntityRenderer<EntityDemo> {
 	public void render(EntityDemo entity, float yaw, float partialTicks, MatrixStack stack, IRenderTypeBuffer buffer,
 			int light) {
 		super.render(entity, yaw, partialTicks, stack, buffer, light);
-//		stack.push();
-		GL46.glPushMatrix();
-//		GlStateManager.multMatrix(stack.getLast().getMatrix());
-//		ModelLoader.doRender(stack, buffer, LOCATION);
-
-//		stack.translate(0.0D, 0.1F, 0.0D);
-//		stack.rotate(this.renderManager.getCameraOrientation());
-//		stack.rotate(Vector3f.YP.rotationDegrees(180.0F));
-		GL46.glColor4f(1, 1, 1, 1);
-//		ModelLoader.doRender(stack, buffer, LOCATION);
-		GL46.glPopMatrix();
-//		renderOrb(entity, yaw, partialTicks, stack, buffer, light);
-		GLManager.addRenderRunnable(() -> {
-			stack.push();
-//			stack.translate(entity.getPosX() / 100F, entity.getPosY() / 100F, entity.getPosZ() / 100F);
-			GL46.glPushMatrix();
-//			ModelLoader.doRender(stack, buffer, LOCATION);
-//			renderOrb(entity, yaw, partialTicks, stack, buffer, light);
-			GL46.glPopMatrix();
-			stack.pop();
-		});
-//		GLManager.addRenderRunnable(() -> {
-//			GlStateManager.disableCull();
-//			stack.push();
-//			stack.rotate(renderManager.getCameraOrientation());
-//			stack.rotate(Vector3f.YP.rotationDegrees(180.0F));
-//			stack.translate(entity.getPosX(), entity.getPosY(), entity.getPosZ());
-//			GL46.glPushMatrix();
-//			GlStateManager.multMatrix(stack.getLast().getMatrix());
-//			GL46.glBegin(GL11.GL_QUADS);
-//			GL46.glVertex3f(-0.5F, -0.25F, 0);
-//			GL46.glVertex3f(0.5F, -0.25F, 0);
-//			GL46.glVertex3f(0.5F, 0.75F, 0);
-//			GL46.glVertex3f(-0.5F, 0.75F, 0);
-//			GL46.glEnd();
-//			GL46.glPopMatrix();
-//			stack.pop();
-//		});
-		GLManager.addRenderRunnable(() -> {
-			GlStateManager.enableDepthTest();
-//			GlStateManager.enableCull();
-			GL46.glPushMatrix();
-			GlStateManager.multMatrix(stack.getLast().getMatrix());
-//			GL46.glLoadIdentity();
-			PlayerEntity player = Minecraft.getInstance().player;
-			GlStateManager.translated(entity.getPosX() - player.getPosX(), entity.getPosY() - player.getPosY(),
-					entity.getPosZ() - player.getPosZ());
-//			System.out.println((entity.getPosX() - player.getPosX()) + "|" + (entity.getPosY() - player.getPosY()) + "|"
-//					+ (entity.getPosZ() - player.getPosZ()));
-			GlStateManager.color4f(1, 1, 1, 1);
-//			drawCube(0.1F);
-//			drawCubeWithGL46(0.5F);
-//			ModelLoader.doRender(stack, buffer, LOCATION);
-			GL46.glPopMatrix();
-		});
-//		stack.pop();
 		GL46.glPushMatrix();
 		GlStateManager.multMatrix(stack.getLast().getMatrix());
 		ModelLoader.doRender(stack, buffer, LOCATION);
 		GL46.glPopMatrix();
-//		renderOrb(entity, yaw, partialTicks, stack, buffer, light);
-
 		super.render(entity, yaw, partialTicks, stack, buffer, light);
 	}
 

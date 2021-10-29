@@ -1,11 +1,8 @@
 package com.zonesoft.zsml.model.gltf;
 
-import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.Map;
 
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL46;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -41,127 +38,127 @@ public class BufferedPrimitive {
 		initDataGL46();
 	}
 
-	public void initData() {
-		Map<String, Integer> attributes = primitive.getAttributes();
-		Integer posAccessorIndex = attributes.get("POSITION");
-		if (posAccessorIndex != null) {
-			vaoId = GL46.glGenVertexArrays();
-			GL46.glBindVertexArray(vaoId);
-
-			Accessor posAccessor = model.getAccessors().get(posAccessorIndex);
-			byte[] bytes = AccessorHelper.viewBytes(model, posAccessor).getData();
-			poses = bytes;
-			Integer texcoordAccessorIndex = attributes.get("TEXCOORD_0");
-			byte[] texcoordBytes = null;
-			if (texcoordAccessorIndex != null) {
-				Accessor texcoordlAccessor = model.getAccessors().get(texcoordAccessorIndex);
-				texcoordBytes = AccessorHelper.viewBytes(model, texcoordlAccessor).getData();
-			}
-
-			Integer normalAccessorIndex = attributes.get("NORMAL");
-			byte[] normalBytes = null;
-			if (normalAccessorIndex != null) {
-				Accessor normalAccessor = model.getAccessors().get(normalAccessorIndex);
-				normalBytes = AccessorHelper.viewBytes(model, normalAccessor).getData();
-			}
-			ByteBuffer buffer;
-			int verticesCount = bytes.length / 12;
-
-			int byteStride = 12 + (texcoordBytes == null ? 0 : 8) + (normalBytes == null ? 0 : 12);
-			if (byteStride > 12) {
-				buffer = ByteBuffer.allocateDirect(verticesCount * byteStride);
-				buffer.clear();
-				for (int i = 0; i < verticesCount; i++) {
-					buffer.put(bytes, i * 12, 12);
-					if (texcoordBytes != null) {
-						buffer.put(texcoordBytes, i * 8, 8);
-					}
-					if (normalBytes != null) {
-						buffer.put(normalBytes, i * 12, 12);
-					}
-				}
-			} else {
-				buffer = ByteBuffer.allocateDirect(bytes.length).put(bytes);
-			}
-			buffer.clear();
-			vboId = GL46.glGenBuffers();
-			GL46.glBindBuffer(GL46.GL_ARRAY_BUFFER, vboId);
-			GL46.glBufferData(GL46.GL_ARRAY_BUFFER, buffer, GL46.GL_STATIC_DRAW);
-
-			int indicesAccessorIndex = primitive.getIndices();
-			if (eboId == 0) {
-				eboId = GL46.glGenBuffers();
-			}
-			Accessor indicesAccessor = model.getAccessors().get(indicesAccessorIndex);
-			bytes = AccessorHelper.viewBytes(model, indicesAccessor).getData();
-			ByteBuffer indicesBuffer = ByteBuffer.allocateDirect(bytes.length).put(bytes);
-			indicesBuffer.clear();
-//			indicesCount = bytes.length / 4;
-			indicesCount = bytes.length / 2;
-			GL46.glBindBuffer(GL46.GL_ELEMENT_ARRAY_BUFFER, eboId);
-			GL46.glBufferData(GL46.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL46.GL_STATIC_DRAW);
-//			GL46.glIndexPointer(GL46.GL_INT, 0, 0);
-			GL46.glIndexPointer(GL46.GL_UNSIGNED_SHORT, 0, 0);
-			GL46.glVertexPointer(3, GL11.GL_FLOAT, byteStride, 0);
-			int offset = 12;
-			if (texcoordBytes != null) {
-				GL46.glTexCoordPointer(2, GL11.GL_FLOAT, byteStride, offset);
-				offset += 8;
-			}
-			if (normalBytes != null) {
-				GL46.glNormalPointer(GL11.GL_FLOAT, byteStride, offset);
-				offset += 12;
-			}
-
-			GL46.glBindVertexArray(0);
-			GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
-
-			GL46.glBindBuffer(GL46.GL_ELEMENT_ARRAY_BUFFER, 0);
-
-			// MATERIAL START
-
-			int materialIndex = primitive.getMaterial();
-			Material material = materialIndex >= 0 ? model.getMaterials().get(materialIndex) : new Material();
-			PBRMetallicRoughness pbr = material.getPbrMetallicRoughness();
-			if (pbr != null) {
-				TextureInfo baseColorTextureInfo = pbr.getBaseColorTexture();
-				if (baseColorTextureInfo != null) {
-					Texture baseColorTexture = model.getTextures().get(baseColorTextureInfo.getIndex());
-					int baseColorSource = baseColorTexture.getSource();
-					if (baseColorSource >= 0) {
-						Image baseColorImage = model.getImages().get(baseColorTexture.getSource());
-						baseColorLocation = AccessorHelper.getModelDirFile(model, baseColorImage.getUri());
-					}
-				}
-			}
-			ByteBuffer buf = ByteBuffer.wrap(poses);
-			fb = FloatBuffer.allocate(poses.length / 4);
-			while (buf.hasRemaining()) {
-				float f1 = AccessorHelper.byteToFloat(buf.get(), buf.get(), buf.get(), buf.get()),
-						f2 = AccessorHelper.byteToFloat(buf.get(), buf.get(), buf.get(), buf.get()),
-						f3 = AccessorHelper.byteToFloat(buf.get(), buf.get(), buf.get(), buf.get());
-				fb.put(f1);
-				fb.put(f2);
-				fb.put(f3);
-			}
-			indicesBuffer.clear();
-			fb.clear();
-
-//			FloatBuffer fb2 = FloatBuffer.allocate(indicesBuffer.remaining() / 4 * 3);
-			FloatBuffer fb2 = FloatBuffer.allocate(indicesBuffer.remaining() / 2 * 3);
-			while (indicesBuffer.hasRemaining()) {
-//				int index = AccessorHelper.byteToInt(indicesBuffer.get(), indicesBuffer.get(), indicesBuffer.get(),
-//						indicesBuffer.get());
-				int index = AccessorHelper.byteToShort(indicesBuffer.get(), indicesBuffer.get());
-				fb2.put(fb.get(index * 3));
-				fb2.put(fb.get(index * 3 + 1));
-				fb2.put(fb.get(index * 3 + 2));
-			}
-			fb = fb2;
-			fb2.clear();
-		}
-		baseColorLocation = new ResourceLocation("zsml:models/textures/initialshadinggroup_basecolor.jpeg");
-	}
+//	public void initData() {
+//		Map<String, Integer> attributes = primitive.getAttributes();
+//		Integer posAccessorIndex = attributes.get("POSITION");
+//		if (posAccessorIndex != null) {
+//			vaoId = GL46.glGenVertexArrays();
+//			GL46.glBindVertexArray(vaoId);
+//
+//			Accessor posAccessor = model.getAccessors().get(posAccessorIndex);
+//			byte[] bytes = AccessorHelper.viewBytes(model, posAccessor).getData();
+//			poses = bytes;
+//			Integer texcoordAccessorIndex = attributes.get("TEXCOORD_0");
+//			byte[] texcoordBytes = null;
+//			if (texcoordAccessorIndex != null) {
+//				Accessor texcoordlAccessor = model.getAccessors().get(texcoordAccessorIndex);
+//				texcoordBytes = AccessorHelper.viewBytes(model, texcoordlAccessor).getData();
+//			}
+//
+//			Integer normalAccessorIndex = attributes.get("NORMAL");
+//			byte[] normalBytes = null;
+//			if (normalAccessorIndex != null) {
+//				Accessor normalAccessor = model.getAccessors().get(normalAccessorIndex);
+//				normalBytes = AccessorHelper.viewBytes(model, normalAccessor).getData();
+//			}
+//			ByteBuffer buffer;
+//			int verticesCount = bytes.length / 12;
+//
+//			int byteStride = 12 + (texcoordBytes == null ? 0 : 8) + (normalBytes == null ? 0 : 12);
+//			if (byteStride > 12) {
+//				buffer = ByteBuffer.allocateDirect(verticesCount * byteStride);
+//				buffer.clear();
+//				for (int i = 0; i < verticesCount; i++) {
+//					buffer.put(bytes, i * 12, 12);
+//					if (texcoordBytes != null) {
+//						buffer.put(texcoordBytes, i * 8, 8);
+//					}
+//					if (normalBytes != null) {
+//						buffer.put(normalBytes, i * 12, 12);
+//					}
+//				}
+//			} else {
+//				buffer = ByteBuffer.allocateDirect(bytes.length).put(bytes);
+//			}
+//			buffer.clear();
+//			vboId = GL46.glGenBuffers();
+//			GL46.glBindBuffer(GL46.GL_ARRAY_BUFFER, vboId);
+//			GL46.glBufferData(GL46.GL_ARRAY_BUFFER, buffer, GL46.GL_STATIC_DRAW);
+//
+//			int indicesAccessorIndex = primitive.getIndices();
+//			if (eboId == 0) {
+//				eboId = GL46.glGenBuffers();
+//			}
+//			Accessor indicesAccessor = model.getAccessors().get(indicesAccessorIndex);
+//			bytes = AccessorHelper.viewBytes(model, indicesAccessor).getData();
+//			ByteBuffer indicesBuffer = ByteBuffer.allocateDirect(bytes.length).put(bytes);
+//			indicesBuffer.clear();
+////			indicesCount = bytes.length / 4;
+//			indicesCount = bytes.length / 2;
+//			GL46.glBindBuffer(GL46.GL_ELEMENT_ARRAY_BUFFER, eboId);
+//			GL46.glBufferData(GL46.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL46.GL_STATIC_DRAW);
+////			GL46.glIndexPointer(GL46.GL_INT, 0, 0);
+//			GL46.glIndexPointer(GL46.GL_UNSIGNED_SHORT, 0, 0);
+//			GL46.glVertexPointer(3, GL11.GL_FLOAT, byteStride, 0);
+//			int offset = 12;
+//			if (texcoordBytes != null) {
+//				GL46.glTexCoordPointer(2, GL11.GL_FLOAT, byteStride, offset);
+//				offset += 8;
+//			}
+//			if (normalBytes != null) {
+//				GL46.glNormalPointer(GL11.GL_FLOAT, byteStride, offset);
+//				offset += 12;
+//			}
+//
+//			GL46.glBindVertexArray(0);
+//			GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+//
+//			GL46.glBindBuffer(GL46.GL_ELEMENT_ARRAY_BUFFER, 0);
+//
+//			// MATERIAL START
+//
+//			int materialIndex = primitive.getMaterial();
+//			Material material = materialIndex >= 0 ? model.getMaterials().get(materialIndex) : new Material();
+//			PBRMetallicRoughness pbr = material.getPbrMetallicRoughness();
+//			if (pbr != null) {
+//				TextureInfo baseColorTextureInfo = pbr.getBaseColorTexture();
+//				if (baseColorTextureInfo != null) {
+//					Texture baseColorTexture = model.getTextures().get(baseColorTextureInfo.getIndex());
+//					int baseColorSource = baseColorTexture.getSource();
+//					if (baseColorSource >= 0) {
+//						Image baseColorImage = model.getImages().get(baseColorTexture.getSource());
+//						baseColorLocation = AccessorHelper.getModelDirFile(model, baseColorImage.getUri());
+//					}
+//				}
+//			}
+//			ByteBuffer buf = ByteBuffer.wrap(poses);
+//			fb = FloatBuffer.allocate(poses.length / 4);
+//			while (buf.hasRemaining()) {
+//				float f1 = AccessorHelper.byteToFloat(buf.get(), buf.get(), buf.get(), buf.get()),
+//						f2 = AccessorHelper.byteToFloat(buf.get(), buf.get(), buf.get(), buf.get()),
+//						f3 = AccessorHelper.byteToFloat(buf.get(), buf.get(), buf.get(), buf.get());
+//				fb.put(f1);
+//				fb.put(f2);
+//				fb.put(f3);
+//			}
+//			indicesBuffer.clear();
+//			fb.clear();
+//
+////			FloatBuffer fb2 = FloatBuffer.allocate(indicesBuffer.remaining() / 4 * 3);
+//			FloatBuffer fb2 = FloatBuffer.allocate(indicesBuffer.remaining() / 2 * 3);
+//			while (indicesBuffer.hasRemaining()) {
+////				int index = AccessorHelper.byteToInt(indicesBuffer.get(), indicesBuffer.get(), indicesBuffer.get(),
+////						indicesBuffer.get());
+//				int index = AccessorHelper.byteToShort(indicesBuffer.get(), indicesBuffer.get());
+//				fb2.put(fb.get(index * 3));
+//				fb2.put(fb.get(index * 3 + 1));
+//				fb2.put(fb.get(index * 3 + 2));
+//			}
+//			fb = fb2;
+//			fb2.clear();
+//		}
+//		baseColorLocation = new ResourceLocation("zsml:models/textures/initialshadinggroup_basecolor.jpeg");
+//	}
 
 	public void initDataGL46() {
 		Map<String, Integer> attributes = primitive.getAttributes();
@@ -170,14 +167,10 @@ public class BufferedPrimitive {
 			vaoId = GL46.glCreateVertexArrays();
 
 			Accessor posAccessor = model.getAccessors().get(posAccessorIndex);
-			byte[] bytes = AccessorHelper.viewBytes(model, posAccessor).getData();
-			for (int i = 0; i < bytes.length; i += 4) {
-				System.out.println(AccessorHelper.byteToFloat(bytes[i], bytes[i + 1], bytes[i + 2], bytes[i + 3]));
-			}
-			ByteBuffer buffer = ByteBuffer.allocateDirect(bytes.length).put(bytes);
-			buffer.clear();
 			vboId = GL46.glCreateBuffers();
-			GL46.glNamedBufferStorage(vboId, buffer, GL46.GL_MAP_WRITE_BIT);
+//			GL46.glNamedBufferStorage(vboId, buffer, GL46.GL_MAP_WRITE_BIT);
+//			GL45C.nglNamedBufferStorage(vboId, posAccessor., indicesCount, eboId);
+			AccessorHelper.storageAccessorToBuffer(vboId, model, posAccessor, GL46.GL_MAP_WRITE_BIT);
 			GL46.glVertexArrayAttribFormat(vaoId, 0, 3, GL46.GL_FLOAT, false, 0);
 			GL46.glVertexArrayAttribBinding(vaoId, 0, 0);
 			GL46.glEnableVertexArrayAttrib(vaoId, 0);
@@ -208,50 +201,18 @@ public class BufferedPrimitive {
 //				Accessor normalAccessor = model.getAccessors().get(normalAccessorIndex);
 //				normalBytes = AccessorHelper.viewBytes(model, normalAccessor).getData();
 //			}
-////////////////////////////////////////////////////////////////////////////////////////////////////////
-			int verticesCount = bytes.length / 12;
-
-//			int byteStride = 12 + (texcoordBytes == null ? 0 : 8) + (normalBytes == null ? 0 : 12);
-//			if (byteStride > 12) {
-//				buffer = ByteBuffer.allocateDirect(verticesCount * byteStride);
-//				buffer.clear();
-//				for (int i = 0; i < verticesCount; i++) {
-//					buffer.put(bytes, i * 12, 12);
-//					if (texcoordBytes != null) {
-//						buffer.put(texcoordBytes, i * 8, 8);
-//					}
-//					if (normalBytes != null) {
-//						buffer.put(normalBytes, i * 12, 12);
-//					}
-//				}
-//			} else {
-
-//			}
-
-//			GL46.glVertexPointer(3, GL11.GL_FLOAT, byteStride, 0);
-//			GL46.glVertexArrayAttribBinding(verticesCount, byteStride, indicesAccessorIndex);
-
-//			int offset = 12;
-//			if (texcoordBytes != null) {
-//				GL46.glTexCoordPointer(2, GL11.GL_FLOAT, byteStride, offset);
-//				offset += 8;
-//			}
-//			if (normalBytes != null) {
-//				GL46.glNormalPointer(GL11.GL_FLOAT, byteStride, offset);
-//				offset += 12;
-//			}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 			int indicesAccessorIndex = primitive.getIndices();
 //			eboId = GL46.glGenBuffers();
 			eboId = GL46.glCreateBuffers();
 			Accessor indicesAccessor = model.getAccessors().get(indicesAccessorIndex);
-			bytes = AccessorHelper.viewBytes(model, indicesAccessor).getData();
-			ByteBuffer indicesBuffer = ByteBuffer.allocateDirect(bytes.length).put(bytes);
-			indicesBuffer.clear();
-			indicesCount = bytes.length / 4;
+			AccessorHelper.storageAccessorToBuffer(eboId, model, indicesAccessor, GL46.GL_MAP_WRITE_BIT);
+//			AccessorHelper.storageAccessorToBuffer(eboId, model, indicesAccessor, GL46.GL_MAP_WRITE_BIT);
+			indicesCount = indicesAccessor.getCount();
 //			GL46.glBindBuffer(GL46.GL_ELEMENT_ARRAY_BUFFER, eboId);
 //			GL46.glBufferData(GL46.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL46.GL_STATIC_DRAW);
-			GL46.glNamedBufferStorage(eboId, indicesBuffer, GL46.GL_MAP_WRITE_BIT);
+//			GL46.glNamedBufferStorage(eboId, indicesBuffer, GL46.GL_MAP_WRITE_BIT);
 //			GL46.glIndexPointer(GL46.GL_INT, 0, 0);
 			GL46.glVertexArrayElementBuffer(vaoId, eboId);
 
@@ -337,14 +298,14 @@ public class BufferedPrimitive {
 //		GL11.glEnableClientState(GL46.GL_TEXTURE_COORD_ARRAY);
 //		GL11.glEnableClientState(GL46.GL_NORMAL_ARRAY);
 
-		if (baseColorLocation != null) {
+//		if (baseColorLocation != null) {
 //			GL11.glEnableClientState(GL46.GL_TEXTURE_COORD_ARRAY);
 //			Minecraft.getInstance().textureManager.bindTexture(baseColorLocation);
-		} else {
+//		} else {
 //			GL46.glDisableClientState(GL46.GL_TEXTURE_COORD_ARRAY);
-		}
-		GL46.glDrawElements(GL11.GL_TRIANGLES, indicesCount, GL11.GL_UNSIGNED_INT, 0);
-
+//		}
+		GL46.glDrawElements(GL46.GL_TRIANGLES, indicesCount, GL46.GL_UNSIGNED_INT, 0);
+//		GL46.glDrawArrays(GL46.GL_TRIANGLES, 0, indicesCount);
 		GL46.glBindVertexArray(0);
 //		GL46.glDisableClientState(GL46.GL_INDEX_ARRAY);
 //		GL11.glDisableClientState(GL11.GL_VERTEX_ARRAY);

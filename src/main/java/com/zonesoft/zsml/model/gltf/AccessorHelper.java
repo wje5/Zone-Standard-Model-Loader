@@ -3,23 +3,24 @@ package com.zonesoft.zsml.model.gltf;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.lwjgl.opengl.GL45C;
 import org.lwjgl.opengl.GL46;
+import org.lwjgl.system.MemoryUtil;
 
 import com.zonesoft.zsml.model.gltf.bean.Accessor;
 import com.zonesoft.zsml.model.gltf.bean.Buffer;
-import com.zonesoft.zsml.model.gltf.bean.BufferView;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.util.ResourceLocation;
 
 public class AccessorHelper {
-	private static Map<Buffer, BufferData> cachedData = new HashMap<Buffer, BufferData>();
-	private static Map<BufferView, BufferData> cachedBufferView = new HashMap<BufferView, BufferData>();
+	private static Map<Buffer, ByteBuffer> cachedData = new HashMap<Buffer, ByteBuffer>();
+//	private static Map<BufferView, BufferData> cachedBufferView = new HashMap<BufferView, BufferData>();
 
 //	public static Vector3f getVec3(ModelGLTF model, Accessor accessor) {
 //		byte[] data = viewBytes(model, accessor).getData();
@@ -58,12 +59,20 @@ public class AccessorHelper {
 		return buffer.getShort();
 	}
 
-	public static BufferData viewBytes(ModelGLTF model, Accessor accessor) {
-		System.out.println(getComponentLength(accessor.getComponentType()) + "|" + getComponentCount(accessor.getType())
-				+ "|" + accessor.getCount());
-		return viewBytes(model, model.getBufferViews().get(accessor.getBufferView()), accessor.getByteOffset(),
-				getComponentLength(accessor.getComponentType()) * getComponentCount(accessor.getType())
-						* accessor.getCount());
+	public static int getAccessorSize(Accessor accessor) {
+		return getComponentLength(accessor.getComponentType()) * getComponentCount(accessor.getType())
+				* accessor.getCount();
+	}
+
+	public static int getAccessorOffset(ModelGLTF model, Accessor accessor) {
+		return model.getBufferViews().get(accessor.getBufferView()).getByteOffset() + accessor.getByteOffset();
+	}
+
+	public static void storageAccessorToBuffer(int buffer, ModelGLTF model, Accessor accessor, int flags) {
+		ByteBuffer bb = getBufferData(model,
+				model.getBuffers().get(model.getBufferViews().get(accessor.getBufferView()).getBuffer()));
+		GL45C.nglNamedBufferStorage(buffer, Integer.toUnsignedLong(getAccessorSize(accessor)) << 1,
+				MemoryUtil.memAddress(bb) + getAccessorOffset(model, accessor), flags);
 	}
 
 	public static int getComponentLength(int componentType) {
@@ -104,45 +113,40 @@ public class AccessorHelper {
 		throw new IllegalArgumentException();
 	}
 
-	public static BufferData viewBytes(ModelGLTF model, BufferView bufferView, int accessorOffset, int accessorLength) {
-		System.out.println("bytes:" + bufferView.getByteOffset() + "|" + bufferView.getByteLength() + "|"
-				+ accessorOffset + "|" + accessorLength);
-		BufferData data = cachedBufferView.get(bufferView);
-		if (data != null) {
-			return data;
+//	public static BufferData viewBytes(ModelGLTF model, BufferView bufferView, int accessorOffset, int accessorLength) {
+//		BufferData data = cachedBufferView.get(bufferView);
+//		if (data != null) {
+//			return data;
+//		}
+//		int offset = bufferView.getByteOffset();
+//		data = new BufferData(
+//				Arrays.copyOfRange(getBufferData(model, model.getBuffers().get(bufferView.getBuffer())).data,
+//						offset + accessorOffset, offset + accessorOffset + accessorLength));
+//		cachedBufferView.put(bufferView, data);
+//		return data;
+//	}
+
+	public static ByteBuffer readToBuffer(InputStream stream, int size) throws IOException {
+		ByteBuffer bytebuffer = MemoryUtil.memAlloc(size + 1);
+		ReadableByteChannel channel = Channels.newChannel(stream);
+		while (channel.read(bytebuffer) != -1) {
 		}
-		int offset = bufferView.getByteOffset();
-		data = new BufferData(
-				Arrays.copyOfRange(getBufferData(model, model.getBuffers().get(bufferView.getBuffer())).data,
-						offset + accessorOffset, offset + accessorOffset + accessorLength));
-		System.out.println("buffer" + bufferView.getBuffer() + ":"
-				+ getBufferData(model, model.getBuffers().get(bufferView.getBuffer())).data.length);
-		cachedBufferView.put(bufferView, data);
-		return data;
+		return bytebuffer;
 	}
 
-	public static BufferData getBufferData(ModelGLTF model, Buffer buffer) {
-		BufferData bufferData = cachedData.get(buffer);
-		if (bufferData != null) {
-			return bufferData;
+	public static ByteBuffer getBufferData(ModelGLTF model, Buffer buffer) {
+		ByteBuffer data = cachedData.get(buffer);
+		if (data != null) {
+			return data;
 		}
 		ResourceLocation location = getModelDirFile(model, buffer.getUri());
 		InputStream stream = null;
 		try {
 			stream = Minecraft.getInstance().getResourceManager().getResource(location).getInputStream();
-			byte[] data = new byte[buffer.getByteLength()];
-//			System.out.println(data.length + "||||||||" + stream.available());
-//			stream.read(data);
-//			System.out.println(data.length + "||||||||" + stream.available());
-//			for (byte b : data) {
-//				System.out.println(b);
-//			}
-//			System.out.println("END_______________");
-			ByteBuffer bb = TextureUtil.readToBuffer(stream);
-			bb.flip();
-			bb.get(data);
-			bufferData = new BufferData(data);
-			cachedData.put(buffer, bufferData);
+//			data = TextureUtil.readToBuffer(stream);
+			data = readToBuffer(stream, buffer.getByteLength());
+			data.flip();
+			cachedData.put(buffer, data);
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
@@ -152,24 +156,12 @@ public class AccessorHelper {
 				e.printStackTrace();
 			}
 		}
-		return bufferData;
+		return data;
 	}
 
 	public static ResourceLocation getModelDirFile(ModelGLTF model, String filePath) {
 		String[] a = model.getPath().getPath().split("/");
 		a[a.length - 1] = filePath;
 		return new ResourceLocation(model.getPath().getNamespace(), String.join("/", a));
-	}
-
-	public static class BufferData {
-		private byte[] data;
-
-		public BufferData(byte[] data) {
-			this.data = data;
-		}
-
-		public byte[] getData() {
-			return data;
-		}
 	}
 }
