@@ -14,6 +14,7 @@ import com.zonesoft.zsml.model.gltf.bean.Buffer;
 import com.zonesoft.zsml.model.gltf.bean.BufferView;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.util.ResourceLocation;
 
 public class AccessorHelper {
@@ -58,6 +59,8 @@ public class AccessorHelper {
 	}
 
 	public static BufferData viewBytes(ModelGLTF model, Accessor accessor) {
+		System.out.println(getComponentLength(accessor.getComponentType()) + "|" + getComponentCount(accessor.getType())
+				+ "|" + accessor.getCount());
 		return viewBytes(model, model.getBufferViews().get(accessor.getBufferView()), accessor.getByteOffset(),
 				getComponentLength(accessor.getComponentType()) * getComponentCount(accessor.getType())
 						* accessor.getCount());
@@ -102,6 +105,8 @@ public class AccessorHelper {
 	}
 
 	public static BufferData viewBytes(ModelGLTF model, BufferView bufferView, int accessorOffset, int accessorLength) {
+		System.out.println("bytes:" + bufferView.getByteOffset() + "|" + bufferView.getByteLength() + "|"
+				+ accessorOffset + "|" + accessorLength);
 		BufferData data = cachedBufferView.get(bufferView);
 		if (data != null) {
 			return data;
@@ -110,6 +115,8 @@ public class AccessorHelper {
 		data = new BufferData(
 				Arrays.copyOfRange(getBufferData(model, model.getBuffers().get(bufferView.getBuffer())).data,
 						offset + accessorOffset, offset + accessorOffset + accessorLength));
+		System.out.println("buffer" + bufferView.getBuffer() + ":"
+				+ getBufferData(model, model.getBuffers().get(bufferView.getBuffer())).data.length);
 		cachedBufferView.put(bufferView, data);
 		return data;
 	}
@@ -124,7 +131,16 @@ public class AccessorHelper {
 		try {
 			stream = Minecraft.getInstance().getResourceManager().getResource(location).getInputStream();
 			byte[] data = new byte[buffer.getByteLength()];
-			stream.read(data);
+//			System.out.println(data.length + "||||||||" + stream.available());
+//			stream.read(data);
+//			System.out.println(data.length + "||||||||" + stream.available());
+//			for (byte b : data) {
+//				System.out.println(b);
+//			}
+//			System.out.println("END_______________");
+			ByteBuffer bb = TextureUtil.readToBuffer(stream);
+			bb.flip();
+			bb.get(data);
 			bufferData = new BufferData(data);
 			cachedData.put(buffer, bufferData);
 		} catch (IOException e) {

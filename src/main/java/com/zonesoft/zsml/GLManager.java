@@ -18,6 +18,7 @@ public class GLManager {
 	}
 
 	public static void finishRenders() {
+//		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_STENCIL_BUFFER_BIT);
 		Runnable e;
 		while (true) {
 			e = renderRunnables.poll();
@@ -31,7 +32,7 @@ public class GLManager {
 	@SubscribeEvent
 	public static void onRenderTick(@Nonnull TickEvent.RenderTickEvent event) {
 		if (event.phase == TickEvent.Phase.END) {
-			finishRenders();
+//			finishRenders();
 		}
 	}
 }
