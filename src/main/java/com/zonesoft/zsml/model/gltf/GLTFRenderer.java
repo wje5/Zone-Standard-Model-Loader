@@ -20,19 +20,18 @@ public class GLTFRenderer extends ModelRenderer {
 	}
 
 	@Override
-	public void doRender(MatrixStack stack, IRenderTypeBuffer buffer) {
+	public void doRender(MatrixStack stack, IRenderTypeBuffer buffer, int lightLevel) {
 		ModelGLTF model = (ModelGLTF) this.model;
-//		GL11.glDisable(GL11.GL_CULL_FACE);
-		model.getScenes().forEach(e -> renderScene(stack, buffer, model, e));
+		model.getScenes().forEach(e -> renderScene(stack, buffer, model, e, lightLevel));
 	}
 
-	public void renderScene(MatrixStack stack, IRenderTypeBuffer buffer, ModelGLTF model, Scene scene) {
+	public void renderScene(MatrixStack stack, IRenderTypeBuffer buffer, ModelGLTF model, Scene scene, int lightLevel) {
 		for (int i : scene.getNodes()) {
-			renderNode(stack, buffer, model, model.getNodes().get(i));
+			renderNode(stack, buffer, model, model.getNodes().get(i), lightLevel);
 		}
 	}
 
-	public void renderNode(MatrixStack stack, IRenderTypeBuffer buffer, ModelGLTF model, Node node) {
+	public void renderNode(MatrixStack stack, IRenderTypeBuffer buffer, ModelGLTF model, Node node, int lightLevel) {
 		int meshIndex = node.getMesh();
 		if (meshIndex >= 0) {
 			Mesh mesh = model.getMeshes().get(meshIndex);
@@ -48,7 +47,7 @@ public class GLTFRenderer extends ModelRenderer {
 		int[] childen = node.getChildren();
 		if (childen != null) {
 			for (int i : node.getChildren()) {
-				renderNode(stack, buffer, model, model.getNodes().get(i));
+				renderNode(stack, buffer, model, model.getNodes().get(i), lightLevel);
 			}
 		}
 	}

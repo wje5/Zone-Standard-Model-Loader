@@ -5,18 +5,26 @@ import java.nio.ByteOrder;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL46;
+import org.lwjgl.system.MemoryUtil;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import com.zonesoft.zsml.ModelLoader;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.renderer.vertex.VertexFormat;
+import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Matrix3f;
@@ -42,9 +50,120 @@ public class DemoRenderer extends EntityRenderer<EntityDemo> {
 		super.render(entity, yaw, partialTicks, stack, buffer, light);
 		GL46.glPushMatrix();
 		GlStateManager.multMatrix(stack.getLast().getMatrix());
-		ModelLoader.doRender(stack, buffer, LOCATION);
+		ModelLoader.doRender(stack, buffer, LOCATION, light);
+//		renderLightMap();
+//		renderLightMapGL();
+//		renderLightMapGL46();
+//		GuiUtils.drawTexturedModalRect(x, y, u, v, width, height, zLevel);
 		GL46.glPopMatrix();
-		super.render(entity, yaw, partialTicks, stack, buffer, light);
+	}
+
+	public static void renderLightMapGL() {
+		float uScale = 1f / 0x100;
+		float vScale = 1f / 0x100;
+		int x = 0, y = 0, zLevel = 0;
+		int width = 2, height = 2, u = 0, v = 0;
+		GL46.glEnableClientState(GL46.GL_VERTEX_ARRAY);
+		GL46.glEnableClientState(GL46.GL_TEXTURE_COORD_ARRAY);
+		Minecraft.getInstance().gameRenderer.getLightTexture().enableLightmap();
+//		GL46.glDisable(GL46.GL_TEXTURE_2D);
+//		GL46.glActiveTexture(GL46.GL_TEXTURE0);
+//		GL46.glDisable(GL46.GL_TEXTURE_2D);
+		GL46.glActiveTexture(GL46.GL_TEXTURE2);
+		GL46.glEnable(GL46.GL_TEXTURE_2D);
+
+		GL46.glBegin(GL46.GL_QUADS);
+		GL46.glVertex3f(x, y + height, zLevel);
+		GL46.glTexCoord2f(0, 1);
+		GL46.glVertex3f(x + width, y + height, zLevel);
+		GL46.glTexCoord2f(1, 1);
+		GL46.glVertex3f(x + width, y, zLevel);
+		GL46.glTexCoord2f(1, 0);
+		GL46.glVertex3f(x, y, zLevel);
+		GL46.glTexCoord2f(0, 0);
+
+//		GL46.glActiveTexture(GL46.GL_TEXTURE2);
+//		GL46.glEnable(GL46.GL_TEXTURE_2D);
+		GL46.glEnd();
+		GL46.glDisableClientState(GL46.GL_VERTEX_ARRAY);
+		GL46.glDisableClientState(GL46.GL_TEXTURE_COORD_ARRAY);
+		Minecraft.getInstance().gameRenderer.getLightTexture().disableLightmap();
+	}
+
+	public static void renderLightMapGL46() {
+		float uScale = 1f / 0x100;
+		float vScale = 1f / 0x100;
+		int x = 0, y = 0, zLevel = 0;
+		int width = 2, height = 2, u = 0, v = 0;
+//		vboId = GL46.glGenBuffers();
+
+//		GL46.glBindBuffer(GL46.GL_ARRAY_BUFFER, vboId);
+		float[] pos = new float[] { x, y + height, zLevel, x + width, y + height, zLevel, x + width, y, zLevel, x, y,
+				zLevel };
+		float[] tex = new float[] { 0, 1, 1, 1, 1, 0, 0, 0 };
+		short[] tex2 = new short[] { 10, 10, 10, 10, 10, 10, 10, 10 };
+		ByteBuffer buf = ByteBuffer.allocateDirect(80);
+		buf.order(ByteOrder.LITTLE_ENDIAN);
+		for (int i = 0; i < 4; i++) {
+			buf.putFloat(pos[i * 3]);
+			buf.putFloat(pos[i * 3 + 1]);
+			buf.putFloat(pos[i * 3 + 2]);
+			buf.putFloat(tex[i * 2]);
+			buf.putFloat(tex[i * 2 + 1]);
+//			buf.putInt(tex2[i]);
+//			buf.putShort(tex2[i * 2]);
+//			buf.putShort(tex2[i * 2 + 1]);
+		}
+		buf.clear();
+		RenderSystem.enableDepthTest();
+		long pointer = MemoryUtil.memAddress(buf);
+//		GL46.glBufferData(GL46.GL_ARRAY_BUFFER, buf, GL46.GL_STATIC_DRAW);
+		Minecraft.getInstance().gameRenderer.getLightTexture().enableLightmap();
+		GL46.glVertexPointer(3, GL46.GL_FLOAT, 20, pointer);
+		GL46.glEnableClientState(GL46.GL_VERTEX_ARRAY);
+
+//		GL46.glDisable(GL46.GL_TEXTURE_2D);
+		GL46.glClientActiveTexture(GL46.GL_TEXTURE2);
+		GL46.glTexCoordPointer(2, GL46.GL_FLOAT, 20, pointer + 12);
+//		GL46.glTexCoordPointer(2, GL46.GL_SHORT, 16, pointer + 12);
+		GL46.glEnableClientState(GL46.GL_TEXTURE_COORD_ARRAY);
+		GL46.glClientActiveTexture(GL46.GL_TEXTURE0);
+		GL46.glActiveTexture(GL46.GL_TEXTURE0);
+//		GL46.glDisable(GL46.GL_TEXTURE_2D);
+		GL46.glBindTexture(GL46.GL_TEXTURE_2D, 0);
+		GL46.glActiveTexture(GL46.GL_TEXTURE2);
+		Minecraft.getInstance().textureManager.bindTexture(EXPERIENCE_ORB_TEXTURES);
+		Minecraft.getInstance().gameRenderer.getLightTexture().enableLightmap();
+		GL46.glEnable(GL46.GL_TEXTURE_2D);
+//		GL46.glEnable(GL46.GL_TEXTURE_2D);
+
+//		GL46.glActiveTexture(GL46.GL_TEXTURE2);
+
+		GL46.glDrawArrays(GL46.GL_QUADS, 0, 4);
+//		GL46.glBindBuffer(GL46.GL_ARRAY_BUFFER, 0);
+		Minecraft.getInstance().gameRenderer.getLightTexture().disableLightmap();
+
+	}
+
+	public static void renderLightMap() {
+		float uScale = 1f / 0x100;
+		float vScale = 1f / 0x100;
+		int x = -3, y = 0, zLevel = 0;
+		int width = 2, height = 2, u = 0, v = 0;
+		Minecraft.getInstance().gameRenderer.getLightTexture().enableLightmap();
+		Tessellator tessellator = Tessellator.getInstance();
+		BufferBuilder wr = tessellator.getBuffer();
+		wr.begin(GL11.GL_QUADS,
+				new VertexFormat(ImmutableList.<VertexFormatElement>builder().add(DefaultVertexFormats.POSITION_3F)
+						.add(DefaultVertexFormats.TEX_2F).add(DefaultVertexFormats.TEX_2SB).build()));
+		int l = 0xA000A0;
+		wr.pos(x, y + height, zLevel).tex(u * uScale, ((v + height) * vScale)).lightmap(0xF0).endVertex();
+		wr.pos(x + width, y + height, zLevel).tex((u + width) * uScale, ((v + height) * vScale)).lightmap(0xF000F0)
+				.endVertex();
+		wr.pos(x + width, y, zLevel).tex((u + width) * uScale, (v * vScale)).lightmap(0xF00000).endVertex();
+		wr.pos(x, y, zLevel).tex(u * uScale, (v * vScale)).lightmap(0).endVertex();
+		tessellator.draw();
+		Minecraft.getInstance().gameRenderer.getLightTexture().disableLightmap();
 	}
 
 	public static void drawCube(float size) {

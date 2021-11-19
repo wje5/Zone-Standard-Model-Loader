@@ -1,10 +1,10 @@
-package com.zonesoft.zsml;
+package com.zonesoft.zsml.demo;
 
-import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL46;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.zonesoft.zsml.demo.DemoRenderer;
+import com.zonesoft.zsml.ModelLoader;
 
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
@@ -15,9 +15,10 @@ public class ITESRTrumpet extends ItemStackTileEntityRenderer {
 	@Override
 	public void func_239207_a_(ItemStack stack, TransformType type, MatrixStack matrixStack, IRenderTypeBuffer buffer,
 			int combinedLight, int combinedOverlay) {
-		GL11.glPushMatrix();
+		super.func_239207_a_(stack, type, matrixStack, buffer, combinedLight, combinedOverlay);
+		GL46.glPushMatrix();
 		GlStateManager.multMatrix(matrixStack.getLast().getMatrix());
-		ModelLoader.doRender(matrixStack, buffer, DemoRenderer.LOCATION);
-		GL11.glPopMatrix();
+		ModelLoader.doRender(matrixStack, buffer, DemoRenderer.LOCATION, combinedLight);
+		GL46.glPopMatrix();
 	}
 }

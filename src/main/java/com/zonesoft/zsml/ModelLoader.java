@@ -50,11 +50,12 @@ public class ModelLoader {
 		return renderer;
 	}
 
-	public static void doRender(MatrixStack stack, IRenderTypeBuffer buffer, AbstractModel model) {
-		getRenderer(model).doRender(stack, buffer);
+	public static void doRender(MatrixStack stack, IRenderTypeBuffer buffer, AbstractModel model, int lightLevel) {
+		getRenderer(model).doRender(stack, buffer, lightLevel);
 	}
 
-	public static void doRender(MatrixStack stack, IRenderTypeBuffer buffer, ResourceLocation location) {
-		doRender(stack, buffer, getModel(location));
+	public static void doRender(MatrixStack stack, IRenderTypeBuffer buffer, ResourceLocation location,
+			int lightLevel) {
+		doRender(stack, buffer, getModel(location), lightLevel);
 	}
 }

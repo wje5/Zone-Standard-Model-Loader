@@ -5,7 +5,7 @@
 	"refmap": "zsml.mixin.refmap.json",
 	"compatibilityLevel": "JAVA_8",
 	"mixins": [
-		"MixinWorldRenderer"
+		
 	],
 	"injectors": {
 		"defaultRequire": 1

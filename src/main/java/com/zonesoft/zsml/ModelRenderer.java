@@ -11,7 +11,7 @@ public class ModelRenderer {
 		this.model = model;
 	}
 
-	public void doRender(MatrixStack stack, IRenderTypeBuffer buffer) {
+	public void doRender(MatrixStack stack, IRenderTypeBuffer buffer, int lightLevel) {
 
 	}
 }

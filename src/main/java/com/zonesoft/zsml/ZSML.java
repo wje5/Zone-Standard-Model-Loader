@@ -9,6 +9,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.zonesoft.zsml.demo.DemoRenderer;
 import com.zonesoft.zsml.demo.EntityLoader;
+import com.zonesoft.zsml.demo.ITESRTrumpet;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.entity.EntityRendererManager;

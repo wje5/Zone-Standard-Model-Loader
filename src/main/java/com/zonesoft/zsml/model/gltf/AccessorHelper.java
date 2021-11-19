@@ -59,20 +59,45 @@ public class AccessorHelper {
 		return buffer.getShort();
 	}
 
+	public static int getAccessorVertexSize(Accessor accessor) {
+		return getComponentLength(accessor.getComponentType()) * getComponentCount(accessor.getType());
+	}
+
 	public static int getAccessorSize(Accessor accessor) {
-		return getComponentLength(accessor.getComponentType()) * getComponentCount(accessor.getType())
-				* accessor.getCount();
+		return getAccessorVertexSize(accessor) * accessor.getCount();
 	}
 
 	public static int getAccessorOffset(ModelGLTF model, Accessor accessor) {
 		return model.getBufferViews().get(accessor.getBufferView()).getByteOffset() + accessor.getByteOffset();
 	}
 
-	public static void storageAccessorToBuffer(int buffer, ModelGLTF model, Accessor accessor, int flags) {
+	public static void storageAccessorToGlBuffer(int buffer, ModelGLTF model, Accessor accessor, int flags) {
 		ByteBuffer bb = getBufferData(model,
 				model.getBuffers().get(model.getBufferViews().get(accessor.getBufferView()).getBuffer()));
 		GL45C.nglNamedBufferStorage(buffer, Integer.toUnsignedLong(getAccessorSize(accessor)) << 1,
 				MemoryUtil.memAddress(bb) + getAccessorOffset(model, accessor), flags);
+	}
+
+	public static void storageAccessorToByteBuffer(ByteBuffer byteBuffer, ModelGLTF model, Accessor accessor) {
+		ByteBuffer bb = getBufferData(model,
+				model.getBuffers().get(model.getBufferViews().get(accessor.getBufferView()).getBuffer()));
+		bb.position(getAccessorOffset(model, accessor));
+		byte[] bytes = new byte[getAccessorSize(accessor)];
+		bb.get(bytes, 0, bytes.length);
+		byteBuffer.put(bytes);
+	}
+
+	public static byte[] storageAccessorToByteArray(ModelGLTF model, Accessor accessor) {
+		ByteBuffer bb = ByteBuffer.allocateDirect(getAccessorSize(accessor));
+		storageAccessorToByteBuffer(bb, model, accessor);
+		return getByteBufferData(bb);
+	}
+
+	public static byte[] getByteBufferData(ByteBuffer buffer) {
+		buffer.clear();
+		byte[] bytes = new byte[buffer.remaining()];
+		buffer.get(bytes);
+		return bytes;
 	}
 
 	public static int getComponentLength(int componentType) {
